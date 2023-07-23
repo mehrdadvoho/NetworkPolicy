@@ -1,12 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: test-deny-all
-  namespace: test
+  name: mcs-prod-deny-all
+  namespace: mcs-prod
 spec:
   podSelector: {}
   policyTypes:
   - Ingress
+  - Egress
   ingress:
   - from:
     - podSelector:
@@ -18,9 +19,21 @@ spec:
           operator: In
           values:
           - kube-system
+          - minio-prod
           - ingress-nginx
           - monitoring
-
     ports:
     - protocol: TCP
       port: 80
+
+  egress:
+  - to:
+    # - podSelector:
+    #     matchLabels:
+    #       access: "true"
+    - namespaceSelector:
+        matchExpressions:
+        - key: namespace
+          operator: In
+          values:
+          - minio-prod
